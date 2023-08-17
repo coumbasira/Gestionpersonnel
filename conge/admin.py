@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import CongeRequest, ChefResponse
 
-# Register your models here.
+admin.site.register(CongeRequest)
+admin.site.register(ChefResponse)
