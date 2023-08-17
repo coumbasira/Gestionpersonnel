@@ -8,6 +8,34 @@
 <h1>listes des demandes de conge</h1>
 
 
+<table class="table table-striped table-hover table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">Nom</th>
+      <th scope="col">Motif de la demande</th>
+      <th scope="col">Date de debut</th>
+      <th scope="col">Date de fin</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if congerequests %}
+      {% for congerequest in congerequests %}
+      <tr>
+        <td>{{ congerequest.user}}</td>
+        <td>{{ congerequest.motif }}</td>
+        <td>{{ congerequest.date_depart }}</td>
+        <td> {{ congerequest.date_arrivee }}</td>
+        <td>{{ congerequest.status }}</td>
+        
+    </tr>
+
+      {% endfor %}
+    {% endif %}
+
+  </tbody>
+</table>
+
 {% else %}
 
 <h1>Login</h1>
