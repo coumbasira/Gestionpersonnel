@@ -4,8 +4,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import SignUpForm, DemandeCongeForm
-from .models import CongeRequest
-from .models import ChefResponse
+from .models import CongeRequest, ChefResponse
+from .forms import ChefResponseForm
+from django.shortcuts import render, get_object_or_404
 
 def liste(request):
     congerequests = CongeRequest.objects.all()
@@ -86,3 +87,25 @@ def demande_conge(request):
     else:
         messages.success(request, "Vous devez être connecté!")
         return redirect('liste')
+    
+
+
+
+def valider_demande(request, demande_id):
+    demande = get_object_or_404(CongeRequest, id=demande_id)
+    if request.method == 'POST':
+        form = ChefResponseForm(request.POST)
+        if form.is_valid():
+            response = form.save(commit=False)
+            response.request = demande
+            response.save()
+            # Mettre à jour le statut de la demande en fonction de la réponse (approuvé ou rejeté)
+            if response.response == 'approved':
+                demande.status = 'approved'
+            else:
+                demande.status = 'rejected'
+            demande.save()
+            return redirect('liste')  
+    else:
+        form = ChefResponseForm()
+    return render(request, 'valider_demande.html', {'form': form, 'demande': demande})

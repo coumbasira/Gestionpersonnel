@@ -1,0 +1,15 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+  <h2>Validation de la demande de congé</h2>
+  <p>Demande de : {{ demande.user }}</p>
+  <p>Motif : {{ demande.motif }}</p>
+  <p>Date de départ : {{ demande.date_depart }}</p>
+  <p>Date d'arrivée : {{ demande.date_arrivee }}</p>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Valider</button>
+  </form>
+{% endblock %}

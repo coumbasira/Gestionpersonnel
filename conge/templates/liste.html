@@ -26,7 +26,8 @@
         <td>{{ congerequest.motif }}</td>
         <td>{{ congerequest.date_depart }}</td>
         <td> {{ congerequest.date_arrivee }}</td>
-        <td>{{ congerequest.status }}</td>
+        <td><a href="{% url 'valider_demande' congerequest.id %}">{{ congerequest.status }}</a></td>
+   
         
     </tr>
 
