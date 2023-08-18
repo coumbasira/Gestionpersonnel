@@ -7,14 +7,18 @@ from .models import ChefResponse
 from .models import UserProfile
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(label="",widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
+    email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
     first_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'First Name'}))
-    last_name = forms.CharField(label="",max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Last Name'}))
-
+    last_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Last Name'}))
 
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+
+    statut = forms.ChoiceField(choices=[('employe', 'Employé'), ('chef', 'Chef')])
+
+    employe_associated = forms.ModelChoiceField(queryset=UserProfile.objects.filter(statut='employe'), required=False)
+
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
@@ -37,18 +41,14 @@ class SignUpForm(UserCreationForm):
         self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verication.</small></span>'
 
 class SignUpForm(UserCreationForm):
-    # ... ajout du champs formulaire dans le formulaire
+    # ... ajout du champs chef dans le formulaire
 
     statut = forms.ChoiceField(choices=[('employe', 'Employé'), ('chef', 'Chef')])
 
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'statut')
-
-    
-
-
-
+        
 
 class DemandeCongeForm(forms.ModelForm):
     class Meta:

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3">
+    <h1>Associer Employé-Chef</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="chef">Sélectionnez un chef :</label>
+        <select name="chef">
+            {% for chef in chefs %}
+                <option value="{{ chef.user.id }}">{{ chef.user.username }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="employe">Sélectionnez un employé :</label>
+        <select name="employe">
+            {% for employe in employes %}
+                <option value="{{ employe.user.id }}">{{ employe.user.username }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <button type="submit" class="btn btn-primary">Associer</button>
+    </form>
+</div>
+{% endblock %}

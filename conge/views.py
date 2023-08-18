@@ -53,22 +53,9 @@ def logout_user(request):
     messages.success(request, " vous avez été déconnecté... ")
     return redirect('liste')
 
-def register_user(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            #s'authentifier et se connecter
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password1']
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            messages.success(request, "inscription valider bienvenue!")
-            return redirect('liste')
-    else:
-        form = SignUpForm()
-        return render(request, 'register.html', {'form':form})
-    return render(request, 'register.html', {'form':form})
+##ok
+
+
 
 def register_user(request):
     if request.method == 'POST':
@@ -82,13 +69,28 @@ def register_user(request):
             profile.statut = statut
             profile.save()
 
-            # Effectuez d'autres actions si nécessaires, comme la redirection vers une autre page
+            # Si le statut est "chef", associez l'employé choisi au chef
+            if statut == 'chef':
+                employe_associated = form.cleaned_data['employe_associated']
+                if employe_associated:
+                    employe_associated_profile = employe_associated.userprofile
+                    employe_associated_profile.chef = user
+                    employe_associated_profile.save()
+
+            # Authentification et connexion automatiques
+            user = authenticate(username=user.username, password=form.cleaned_data['password1'])
+            if user is not None:
+                login(request, user)
+
+            messages.success(request, "Inscription validée, bienvenue!")
             return redirect('liste')  
+
     else:
         form = SignUpForm()
+
     return render(request, 'register.html', {'form': form})
 
-
+##ok
 def demande_conge(request):
     form = DemandeCongeForm(request.POST or None)
     if request.user.is_authenticated:
@@ -110,7 +112,7 @@ def demande_conge(request):
 def valider_demande(request, demande_id):
     demande = get_object_or_404(CongeRequest, id=demande_id)
     
-    if request.user.is_authenticated and request.user.userprofile.statut == 'chef':
+    if request.user.is_authenticated and request.user.userprofile.statut == 'chef' and request.user == demande.user.userprofile.chef:
         if request.method == 'POST':
             form = ChefResponseForm(request.POST)
             if form.is_valid():
@@ -128,5 +130,31 @@ def valider_demande(request, demande_id):
             form = ChefResponseForm()
         return render(request, 'valider_demande.html', {'form': form, 'demande': demande})
     else:
-        messages.success(request, "Vous devez être chef!")
+        messages.success(request, "Vous devez avoir le profil chef!")
         return redirect('liste')
+    
+###
+
+
+def association(request):
+    if request.method == 'POST':
+        chef_id = request.POST.get('chef')
+        employe_id = request.POST.get('employe')
+
+        chef = UserProfile.objects.get(pk=chef_id)
+        employe = UserProfile.objects.get(pk=employe_id)
+
+        employe.chef = chef.user
+        employe.save()
+
+        return redirect('liste')  
+
+    chefs = UserProfile.objects.filter(statut='chef')
+    employes = UserProfile.objects.filter(statut='employe')
+
+    return render(request, 'association.html', {'chefs': chefs, 'employes': employes})
+
+    
+    #####
+   
+
