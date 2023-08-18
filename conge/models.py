@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+
 class CongeRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     motif = models.CharField(max_length=200)
@@ -12,3 +14,13 @@ class ChefResponse(models.Model):
     request = models.ForeignKey(CongeRequest, on_delete=models.CASCADE)
     response = models.CharField(max_length=20, choices=[('approved', 'Approuvé'), ('rejected', 'Rejeté')])
     comments = models.TextField(blank=True)
+
+
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    statut = models.CharField(max_length=20, choices=[('employe', 'Employé'), ('chef', 'Chef')])
+
+
+from .signals import *

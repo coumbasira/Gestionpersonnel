@@ -6,6 +6,7 @@ from django.contrib import messages
 from .forms import SignUpForm, DemandeCongeForm
 from .models import CongeRequest, ChefResponse
 from .forms import ChefResponseForm
+from .models import UserProfile
 from django.shortcuts import render, get_object_or_404
 
 def liste(request):
@@ -69,8 +70,23 @@ def register_user(request):
         return render(request, 'register.html', {'form':form})
     return render(request, 'register.html', {'form':form})
 
+def register_user(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.save()
 
+            statut = form.cleaned_data['statut']
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.statut = statut
+            profile.save()
 
+            # Effectuez d'autres actions si nécessaires, comme la redirection vers une autre page
+            return redirect('liste')  
+    else:
+        form = SignUpForm()
+    return render(request, 'register.html', {'form': form})
 
 
 def demande_conge(request):
@@ -93,19 +109,24 @@ def demande_conge(request):
 
 def valider_demande(request, demande_id):
     demande = get_object_or_404(CongeRequest, id=demande_id)
-    if request.method == 'POST':
-        form = ChefResponseForm(request.POST)
-        if form.is_valid():
-            response = form.save(commit=False)
-            response.request = demande
-            response.save()
-            # Mettre à jour le statut de la demande en fonction de la réponse (approuvé ou rejeté)
-            if response.response == 'approved':
-                demande.status = 'approved'
-            else:
-                demande.status = 'rejected'
-            demande.save()
-            return redirect('liste')  
+    
+    if request.user.is_authenticated and request.user.userprofile.statut == 'chef':
+        if request.method == 'POST':
+            form = ChefResponseForm(request.POST)
+            if form.is_valid():
+                response = form.save(commit=False)
+                response.request = demande
+                response.save()
+                # Mettre à jour le statut de la demande en fonction de la réponse (approuvé ou rejeté)
+                if response.response == 'approved':
+                    demande.status = 'approved'
+                else:
+                    demande.status = 'rejected'
+                demande.save()
+                return redirect('liste')  
+        else:
+            form = ChefResponseForm()
+        return render(request, 'valider_demande.html', {'form': form, 'demande': demande})
     else:
-        form = ChefResponseForm()
-    return render(request, 'valider_demande.html', {'form': form, 'demande': demande})
+        messages.success(request, "Vous devez être chef!")
+        return redirect('liste')
