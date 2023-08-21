@@ -70,12 +70,12 @@ def register_user(request):
             profile.save()
 
             # Si le statut est "chef", associez l'employé choisi au chef
-            if statut == 'chef':
-                employe_associated = form.cleaned_data['employe_associated']
-                if employe_associated:
-                    employe_associated_profile = employe_associated.userprofile
-                    employe_associated_profile.chef = user
-                    employe_associated_profile.save()
+           # if statut == 'chef':
+               # employe_associated = form.cleaned_data['employe_associated']
+               # if employe_associated:
+                #    employe_associated_profile = employe_associated.userprofile
+                 #   employe_associated_profile.chef = user
+               #     employe_associated_profile.save()
 
             # Authentification et connexion automatiques
             user = authenticate(username=user.username, password=form.cleaned_data['password1'])
