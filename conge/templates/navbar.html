@@ -15,11 +15,15 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'association' %}">Associer</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'liste_demandes_conge' %}">MES DEMANDE</a>
+          </li>
 
           <li class="nav-item">
             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
           </li>
           {% else %}
+
           <li class="nav-item">
             <a class="nav-link" href="{% url 'register' %}">Register</a>
           </li>

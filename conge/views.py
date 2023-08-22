@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 
 
+
 def liste(request):
     congerequests = CongeRequest.objects.all()
     #vérifier si vous avez un compte
@@ -37,6 +38,19 @@ def liste(request):
 ###
 
 
+'''@login_required
+def liste_demandes_conge(request):
+    if request.user.userprofile.statut == 'chef':
+        employes = UserProfile.objects.filter(chef=request.user)
+        congerequests = CongeRequest.objects.filter(user__in=[emp.user for emp in employes])
+    else:
+        congerequests = CongeRequest.objects.filter(user=request.user)
+
+    return render(request, 'liste_demandes_conge.html', {'congerequests': congerequests})  '''
+    
+
+###
+
 @login_required
 def liste_demandes_conge(request):
     if request.user.userprofile.statut == 'chef':
@@ -48,15 +62,13 @@ def liste_demandes_conge(request):
     return render(request, 'liste_demandes_conge.html', {'congerequests': congerequests})
 
 
-   
+
+
         
-    
+
+
 
 ###
-
-
-
-
 
     
 
@@ -83,7 +95,7 @@ def chef(request):
 def logout_user(request):
     logout(request)
     messages.success(request, " vous avez été déconnecté... ")
-    return redirect('liste')
+    return redirect('chef')
 
 ##ok
 
@@ -132,11 +144,11 @@ def demande_conge(request):
                demande_conge.user = request.user
                demande_conge.save()
                messages.success(request, "Demander effectuer!")
-               return redirect('liste')
+               return redirect('liste_demandes_conge')
         return render(request, 'demande_conge.html', {'form':form})
     else:
         messages.success(request, "Vous devez être connecté!")
-        return redirect('liste')
+        return redirect('liste_demandes_conge')
     
 
 
@@ -168,7 +180,7 @@ def valider_demande(request, demande_id):
 ###
 
 
-def association(request):
+'''def association(request):
     if request.method == 'POST':
         chef_id = request.POST.get('chef')
         employe_id = request.POST.get('employe')
@@ -184,9 +196,35 @@ def association(request):
     chefs = UserProfile.objects.filter(statut='chef')
     employes = UserProfile.objects.filter(statut='employe')
 
-    return render(request, 'association.html', {'chefs': chefs, 'employes': employes})
+    return render(request, 'association.html', {'chefs': chefs, 'employes': employes})'''
 
     
     #####
+from django.contrib import messages
+
+def association(request):
+    if request.method == 'POST':
+        chef_id = request.POST.get('chef')
+        employe_id = request.POST.get('employe')
+
+        chef = UserProfile.objects.get(pk=chef_id)
+        employe = UserProfile.objects.get(pk=employe_id)
+
+        # Vérifiez si l'employé a déjà un chef
+        if employe.chef is None:
+            employe.chef = chef.user
+            employe.save()
+            messages.success(request, f"L'association de {employe.user.username} avec {chef.user.username} a été effectuée avec succès.")
+        else:
+            messages.error(request, f"{employe.user.username} a déjà un chef!")
+
+        return redirect('association')
+
+    chefs = UserProfile.objects.filter(statut='chef')
+    employes = UserProfile.objects.filter(statut='employe')
+
+    return render(request, 'association.html', {'chefs': chefs, 'employes': employes})
+
+
    
 

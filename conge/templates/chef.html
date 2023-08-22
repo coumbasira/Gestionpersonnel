@@ -6,36 +6,34 @@
         <div class="col-md-6 offset-md-3">
         {% if user.is_authenticated %}
         <h1>listes des demandes de conge</h1>
-       
-
-            <table class="table table-striped table-hover table-bordered">
-                <thead class="table-dark">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
                 <tr>
-                    <th scope="col">demande</th>
-                    <th scope="col">status</th>
+                    <th scope="col">employe</th>
+                    <th scope="col">Motif</th>
+                    <th scope="col">Depart</th>
+                    <th scope="col">Retour</th>
+                    <th scope="col">Status</th>
                     <th scope="col">Commentaire </th>
-                
                 </tr>
-                </thead>
-                <tbody>
+            </thead>
+            <tbody>
                     {% if chefresponses %}
-                    {% for chefresponse in chefresponses %}
-                    <tr>
-                    <td>{{ chefresponse.request }} </td>
+                     {% for chefresponse in chefresponses %}
+                <tr>
+                    <td>{{ chefresponse.request.user }} </td>
+                    <td>{{ chefresponse.request.motif }} </td>
+                    <td>{{ chefresponse.request.date_depart }} </td>
+                    <td>{{ chefresponse.request.date_arrivee }} </td>
                     <td> {{ chefresponse.response }}</td>
                     <td>{{ chefresponse.comments }}</td>
                     
                 </tr>
             
                     {% endfor %}
-                {% endif %}
-            
-                </tbody>
-            </table>
-            
-            
-            
-            </br>
+                   {% endif %}
+            </tbody>
+        </table>
 {% else %}
 
 <h1>Login</h1>
