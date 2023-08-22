@@ -8,10 +8,13 @@ from .models import CongeRequest, ChefResponse
 from .forms import ChefResponseForm
 from .models import UserProfile
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+
+
 
 def liste(request):
     congerequests = CongeRequest.objects.all()
-    # vérifier si vous avez un compte
+    #vérifier si vous avez un compte
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -22,10 +25,39 @@ def liste(request):
             messages.success(request, "Vous avez été connecté")
             return redirect('liste')
         else:
-            messages.success(request, "une erreur s'est produite lors de la connexion, veuillez réessayer...")
-            return redirect('liste')
+           messages.success(request, "une erreur s'est produite lors de la connexion, veuillez réessayer...")
+           return redirect('liste')
     else:
         return render(request, 'liste.html', {'congerequests':congerequests})
+
+
+    
+
+
+###
+
+
+@login_required
+def liste_demandes_conge(request):
+    if request.user.userprofile.statut == 'chef':
+        employes = UserProfile.objects.filter(chef=request.user)
+        congerequests = CongeRequest.objects.filter(user__in=[emp.user for emp in employes])
+    else:
+        congerequests = CongeRequest.objects.filter(user=request.user)
+
+    return render(request, 'liste_demandes_conge.html', {'congerequests': congerequests})
+
+
+   
+        
+    
+
+###
+
+
+
+
+
     
 
 def chef(request):
