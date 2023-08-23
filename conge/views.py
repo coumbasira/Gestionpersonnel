@@ -27,7 +27,7 @@ def liste(request):
             messages.success(request, "Vous avez été connecté")
             return redirect('accueil')
         else:
-           messages.success(request, "une erreur s'est produite lors de la connexion, veuillez réessayer...")
+           messages.error(request, "une erreur s'est produite lors de la connexion, veuillez réessayer...")
            return redirect('liste')
     else:
         return render(request, 'liste.html', {'congerequests':congerequests})
@@ -78,7 +78,7 @@ def chef(request):
             messages.success(request, "Vous avez été connecté")
             return redirect('chef')
         else:
-            messages.success(request, "une erreur s'est produite lors de la connexion, veuillez réessayer...")
+            messages.error(request, "une erreur s'est produite lors de la connexion, veuillez réessayer...")
             return redirect('chef')
     else:
         return render(request, 'chef.html', {'chefresponses':chefresponses})
@@ -151,7 +151,7 @@ def demande_conge(request):
                     return redirect('liste_demandes_conge')
         return render(request, 'demande_conge.html', {'form': form})
     else:
-        messages.success(request, "Vous devez être connecté!")
+        messages.error(request, "Vous devez être connecté!")
         return redirect('liste_demandes_conge')
 
 ###
@@ -163,7 +163,7 @@ def valider_demande(request, demande_id):
     if request.user.is_authenticated and request.user.userprofile.statut == 'chef' and request.user == demande.user.userprofile.chef:
         if demande.status in ['approved', 'rejected']:
             # Si la demande a déjà été approuvée ou rejetée, rediriger sans afficher le formulaire
-            messages.info(request, "Cette demande a déjà été traitée et ne peut plus être modifiée.")
+            messages.info(request, "Cette demande a déjà été traitée!")
             return redirect('liste_demandes_conge')
         
         if request.method == 'POST':
@@ -183,7 +183,7 @@ def valider_demande(request, demande_id):
             form = ChefResponseForm()
         return render(request, 'valider_demande.html', {'form': form, 'demande': demande})
     else:
-        messages.success(request, "Vous devez avoir le profil chef!")
+        messages.error(request, "Vous devez avoir le profil chef!")
         return redirect('liste')
 
     
