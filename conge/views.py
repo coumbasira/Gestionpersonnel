@@ -24,7 +24,7 @@ def liste(request):
         if user is not None:
             login(request, user)
             messages.success(request, "Vous avez été connecté")
-            return redirect('liste')
+            return redirect('accueil')
         else:
            messages.success(request, "une erreur s'est produite lors de la connexion, veuillez réessayer...")
            return redirect('liste')
@@ -37,16 +37,8 @@ def liste(request):
 
 ###
 
-
-'''@login_required
-def liste_demandes_conge(request):
-    if request.user.userprofile.statut == 'chef':
-        employes = UserProfile.objects.filter(chef=request.user)
-        congerequests = CongeRequest.objects.filter(user__in=[emp.user for emp in employes])
-    else:
-        congerequests = CongeRequest.objects.filter(user=request.user)
-
-    return render(request, 'liste_demandes_conge.html', {'congerequests': congerequests})  '''
+def accueil(request):
+    return render(request, 'accueil.html')
     
 
 ###
@@ -95,7 +87,7 @@ def chef(request):
 def logout_user(request):
     logout(request)
     messages.success(request, " vous avez été déconnecté... ")
-    return redirect('chef')
+    return redirect('accueil')
 
 ##ok
 
@@ -127,7 +119,7 @@ def register_user(request):
                 login(request, user)
 
             messages.success(request, "Inscription validée, bienvenue!")
-            return redirect('liste')  
+            return redirect('accueil')  
 
     else:
         form = SignUpForm()
@@ -153,10 +145,19 @@ def demande_conge(request):
 
 
 
+    
+###
+
+
 def valider_demande(request, demande_id):
     demande = get_object_or_404(CongeRequest, id=demande_id)
     
     if request.user.is_authenticated and request.user.userprofile.statut == 'chef' and request.user == demande.user.userprofile.chef:
+        if demande.status in ['approved', 'rejected']:
+            # Si la demande a déjà été approuvée ou rejetée, rediriger sans afficher le formulaire
+            messages.info(request, "Cette demande a déjà été traitée et ne peut plus être modifiée.")
+            return redirect('liste_demandes_conge')
+        
         if request.method == 'POST':
             form = ChefResponseForm(request.POST)
             if form.is_valid():
@@ -169,34 +170,13 @@ def valider_demande(request, demande_id):
                 else:
                     demande.status = 'rejected'
                 demande.save()
-                return redirect('liste')  
+                return redirect('liste_demandes_conge')  
         else:
             form = ChefResponseForm()
         return render(request, 'valider_demande.html', {'form': form, 'demande': demande})
     else:
         messages.success(request, "Vous devez avoir le profil chef!")
         return redirect('liste')
-    
-###
-
-
-'''def association(request):
-    if request.method == 'POST':
-        chef_id = request.POST.get('chef')
-        employe_id = request.POST.get('employe')
-
-        chef = UserProfile.objects.get(pk=chef_id)
-        employe = UserProfile.objects.get(pk=employe_id)
-
-        employe.chef = chef.user
-        employe.save()
-
-        return redirect('liste')  
-
-    chefs = UserProfile.objects.filter(statut='chef')
-    employes = UserProfile.objects.filter(statut='employe')
-
-    return render(request, 'association.html', {'chefs': chefs, 'employes': employes})'''
 
     
     #####
