@@ -9,6 +9,7 @@ from .forms import ChefResponseForm
 from .models import UserProfile
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 
 
@@ -127,25 +128,32 @@ def register_user(request):
     return render(request, 'register.html', {'form': form})
 
 ##ok
+ 
+###
+
+
 def demande_conge(request):
     form = DemandeCongeForm(request.POST or None)
+    
     if request.user.is_authenticated:
         if request.method == "POST":
             if form.is_valid():
-               demande_conge = form.save(commit=False)
-               demande_conge.user = request.user
-               demande_conge.save()
-               messages.success(request, "Demander effectuer!")
-               return redirect('liste_demandes_conge')
-        return render(request, 'demande_conge.html', {'form':form})
+                date_depart = form.cleaned_data['date_depart']
+                date_arrivee = form.cleaned_data['date_arrivee']
+                
+                if date_arrivee < date_depart:
+                    messages.error(request, "La date d'arrivée ne peut pas être antérieure à la date de départ.")
+                else:
+                    demande_conge = form.save(commit=False)
+                    demande_conge.user = request.user
+                    demande_conge.save()
+                    messages.success(request, "Demande effectuée!")
+                    return redirect('liste_demandes_conge')
+        return render(request, 'demande_conge.html', {'form': form})
     else:
         messages.success(request, "Vous devez être connecté!")
         return redirect('liste_demandes_conge')
-    
 
-
-
-    
 ###
 
 

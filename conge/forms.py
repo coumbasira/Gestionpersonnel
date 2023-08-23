@@ -5,6 +5,7 @@ from django import forms
 from .models import CongeRequest
 from .models import ChefResponse
 from .models import UserProfile
+from django.contrib.admin.widgets import AdminDateWidget
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Email Address'}))
@@ -54,6 +55,11 @@ class DemandeCongeForm(forms.ModelForm):
     class Meta:
         model = CongeRequest
         fields = ['motif', 'date_depart', 'date_arrivee']
+        widgets = {
+            'date_depart': forms.DateInput(attrs={'type': 'date'}),
+            'date_arrivee': forms.DateInput(attrs={'type': 'date'}),
+        }
+
        
 
 class ChefResponseForm(forms.ModelForm):
